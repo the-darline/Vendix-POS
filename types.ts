@@ -47,6 +47,8 @@ export interface BusinessSettings {
   conversionRate: number; // 1 USD = X HTG
   thankYouMessage: string;
   primaryColor: string; // Hex color for theme customization
+  moncashQr?: string; // base64 QR Code MonCash
+  natcashQr?: string; // base64 QR Code NatCash
 }
 
 export interface User {

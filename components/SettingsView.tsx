@@ -18,26 +18,27 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
     setTimeout(() => setShowToast(false), 3000);
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, field: keyof BusinessSettings) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setForm({ ...form, logo: reader.result as string });
+        setForm({ ...form, [field]: reader.result as string });
       };
       reader.readAsDataURL(file);
     }
   };
 
   return (
-    <div className="p-8 max-w-4xl pb-32 lg:pb-8">
+    <div className="p-8 max-w-5xl pb-32 lg:pb-8">
       <div className="mb-8">
         <h1 className="text-3xl font-black text-gray-800">Paramètres Entreprise</h1>
-        <p className="text-gray-500">Configurez l'identité de votre business et personnalisez votre POS</p>
+        <p className="text-gray-500">Configurez l'identité de votre business et personnalisez vos méthodes de paiement</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Section Identité */}
           <div className="space-y-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
               <i className="fas fa-info-circle text-vendix"></i> Informations Générales
@@ -74,9 +75,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
             </div>
           </div>
 
+          {/* Section Design & Logo */}
           <div className="space-y-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
-              <i className="fas fa-palette text-vendix"></i> Personnalisation
+              <i className="fas fa-palette text-vendix"></i> Personnalisation & Logo
             </h3>
             
             <div className="flex flex-col items-center gap-4 mb-4">
@@ -86,9 +88,9 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
                 ) : (
                   <i className="fas fa-image text-gray-300 text-3xl"></i>
                 )}
-                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={handleLogoUpload} />
+                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={(e) => handleImageUpload(e, 'logo')} />
               </div>
-              <p className="text-[10px] text-gray-400 uppercase font-bold">Cliquez pour changer le logo</p>
+              <p className="text-[10px] text-gray-400 uppercase font-bold text-center">Cliquez ci-dessus pour le logo</p>
             </div>
 
             <div className="space-y-4">
@@ -111,19 +113,50 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
                   </div>
                 </div>
               </div>
-              
-              <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Message de remerciement</label>
-                <input
-                  type="text"
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus-vendix text-sm"
-                  value={form.thankYouMessage}
-                  onChange={e => setForm({ ...form, thankYouMessage: e.target.value })}
-                />
+            </div>
+          </div>
+
+          {/* Section QR Codes de Paiement */}
+          <div className="space-y-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm md:col-span-2">
+            <h3 className="font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
+              <i className="fas fa-qrcode text-vendix"></i> QR Codes de Paiement (Mobile Money)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex flex-col items-center">
+                <label className="block text-xs font-bold text-red-600 uppercase mb-4 tracking-widest">QR CODE MONCASH</label>
+                <div className="w-full aspect-square max-w-[200px] border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 flex items-center justify-center overflow-hidden relative group mb-2">
+                  {form.moncashQr ? (
+                    <img src={form.moncashQr} className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="text-center p-4">
+                      <i className="fas fa-mobile-alt text-gray-300 text-3xl mb-2"></i>
+                      <p className="text-[10px] text-gray-400 font-bold">MonCash QR</p>
+                    </div>
+                  )}
+                  <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={(e) => handleImageUpload(e, 'moncashQr')} />
+                </div>
+                <button type="button" onClick={() => setForm({...form, moncashQr: ''})} className="text-[10px] text-red-400 font-bold uppercase hover:underline">Supprimer</button>
+              </div>
+
+              <div className="flex flex-col items-center">
+                <label className="block text-xs font-bold text-blue-600 uppercase mb-4 tracking-widest">QR CODE NATCASH</label>
+                <div className="w-full aspect-square max-w-[200px] border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 flex items-center justify-center overflow-hidden relative group mb-2">
+                  {form.natcashQr ? (
+                    <img src={form.natcashQr} className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="text-center p-4">
+                      <i className="fas fa-mobile-alt text-gray-300 text-3xl mb-2"></i>
+                      <p className="text-[10px] text-gray-400 font-bold">NatCash QR</p>
+                    </div>
+                  )}
+                  <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={(e) => handleImageUpload(e, 'natcashQr')} />
+                </div>
+                <button type="button" onClick={() => setForm({...form, natcashQr: ''})} className="text-[10px] text-red-400 font-bold uppercase hover:underline">Supprimer</button>
               </div>
             </div>
           </div>
 
+          {/* Section Devises */}
           <div className="space-y-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm md:col-span-2">
             <h3 className="font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
               <i className="fas fa-coins text-vendix"></i> Finance et Devises
