@@ -93,7 +93,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
   const handleCompleteRequest = () => {
     if (cart.length === 0) return;
     if (paymentMethod === PaymentMethod.CASH && amountReceived < total) {
-      alert("Montant reçu insuffisant");
+      alert("Montant reçu insuffisant pour une vente au comptant (Cash)");
       return;
     }
 
@@ -225,6 +225,29 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
                 className="w-24 px-3 py-1 text-right border border-gray-200 rounded-lg outline-none font-black text-vendix"
               />
             </div>
+            
+            {/* Nouveau: Champ Montant Reçu et Rendu (uniquement pour Cash) */}
+            {paymentMethod === PaymentMethod.CASH && (
+              <div className="pt-2 mt-2 border-t border-gray-200 space-y-2">
+                <div className="flex justify-between items-center text-[10px] font-bold">
+                  <span className="text-gray-400 uppercase">Montant reçu</span>
+                  <input 
+                    type="number" 
+                    value={amountReceived || ''} 
+                    onChange={(e) => setAmountReceived(Number(e.target.value))}
+                    className="w-24 px-3 py-1 text-right border border-gray-200 rounded-lg outline-none font-black text-emerald-600 focus:ring-1 focus:ring-emerald-500"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div className="flex justify-between items-center text-[11px] font-black">
+                  <span className="text-gray-400 uppercase">Monnaie à rendre</span>
+                  <span className={change > 0 ? 'text-emerald-600' : 'text-gray-400'}>
+                    {change.toLocaleString()} {activeCurrency}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between items-end pt-3 border-t border-gray-200">
               <span className="text-[11px] font-black text-gray-800 uppercase mb-1">TOTAL À PAYER</span>
               <div className="text-right">
