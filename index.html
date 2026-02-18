@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vendix POS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- ZXing for Barcode scanning -->
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { 
+                display: block !important; 
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            body { background: white; margin: 0; padding: 0; }
+            @page { margin: 0; }
+        }
+        .print-only { display: none; }
+        
+        /* Smooth scrolling and transitions */
+        html { scroll-behavior: smooth; }
+        .transition-all { transition: all 0.3s ease; }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* Mobile fixes */
+        input, button, select, textarea {
+            font-size: 16px !important; /* Prevents auto-zoom on iOS */
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased overflow-x-hidden">
+    <div id="root"></div>
+</body>
+</html>

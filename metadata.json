@@ -1,0 +1,7 @@
+{
+  "name": "Vendix POS",
+  "description": "Une application complète de point de vente et de gestion de stock avec support multidevise (USD/HTG), facturation PDF et scan de codes-barres.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
