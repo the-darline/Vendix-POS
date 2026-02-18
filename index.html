@@ -7,9 +7,8 @@
     <title>Vendix POS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- jsPDF for PDF generation -->
+    <!-- bibliothèques externes via CDN (toujours disponibles hors ligne si cachées par le navigateur) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- ZXing for Barcode scanning -->
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
         @media print {
@@ -26,32 +25,33 @@
         }
         .print-only { display: none; }
         
-        /* Smooth scrolling and transitions */
         html { scroll-behavior: smooth; }
         .transition-all { transition: all 0.3s ease; }
 
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        /* Mobile fixes */
         input, button, select, textarea {
-            font-size: 16px !important; /* Prevents auto-zoom on iOS */
+            font-size: 16px !important;
         }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "react/": "https://esm.sh/react@^19.2.4/",
     "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
     "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4"
   }
 }
 </script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans antialiased overflow-x-hidden">
     <div id="root"></div>
+    <!-- Point d'entrée de l'application pour le compilateur (Vite) -->
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
