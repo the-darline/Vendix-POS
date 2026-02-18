@@ -59,11 +59,17 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
 
   const subtotal = useMemo(() => {
     const totalInBase = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    return convertPrice(totalInBase, activeCurrency);
+    return Number(convertPrice(totalInBase, activeCurrency).toFixed(2));
   }, [cart, activeCurrency, settings]);
 
-  const total = useMemo(() => Math.max(0, subtotal - discount), [subtotal, discount]);
-  const change = useMemo(() => (paymentMethod === PaymentMethod.CASH ? Math.max(0, amountReceived - total) : 0), [amountReceived, total, paymentMethod]);
+  const total = useMemo(() => {
+    return Number(Math.max(0, subtotal - discount).toFixed(2));
+  }, [subtotal, discount]);
+
+  const change = useMemo(() => {
+    if (paymentMethod !== PaymentMethod.CASH) return 0;
+    return Number(Math.max(0, amountReceived - total).toFixed(2));
+  }, [amountReceived, total, paymentMethod]);
 
   const finalizeSale = () => {
     const sale: Sale = {
@@ -92,14 +98,23 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
 
   const handleCompleteRequest = () => {
     if (cart.length === 0) return;
-    if (paymentMethod === PaymentMethod.CASH && amountReceived < total) {
-      alert("Montant reçu insuffisant pour une vente au comptant (Cash)");
-      return;
+    
+    // Correction de la comparaison pour mobile avec arrondi à 2 décimales
+    if (paymentMethod === PaymentMethod.CASH) {
+      const roundedReceived = Number(amountReceived.toFixed(2));
+      const roundedTotal = Number(total.toFixed(2));
+      
+      if (roundedReceived < roundedTotal) {
+        alert(`Montant reçu (${roundedReceived}) insuffisant. Total requis: ${roundedTotal}`);
+        return;
+      }
     }
 
-    // Si MonCash ou NatCash est choisi et qu'un QR est configuré, on affiche le QR d'abord
-    if ((paymentMethod === PaymentMethod.MONCASH && settings.moncashQr) || 
-        (paymentMethod === PaymentMethod.NATCASH && settings.natcashQr)) {
+    // Gestion des QR Codes
+    const hasMonCashQr = paymentMethod === PaymentMethod.MONCASH && settings.moncashQr;
+    const hasNatCashQr = paymentMethod === PaymentMethod.NATCASH && settings.natcashQr;
+
+    if (hasMonCashQr || hasNatCashQr) {
       setShowQrModal(true);
     } else {
       finalizeSale();
@@ -220,21 +235,23 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
               <span className="text-gray-400 uppercase">Remise</span>
               <input 
                 type="number" 
+                step="any"
                 value={discount || ''} 
-                onChange={(e) => setDiscount(Number(e.target.value))}
+                onChange={(e) => setDiscount(Number(e.target.value) || 0)}
                 className="w-24 px-3 py-1 text-right border border-gray-200 rounded-lg outline-none font-black text-vendix"
               />
             </div>
             
-            {/* Nouveau: Champ Montant Reçu et Rendu (uniquement pour Cash) */}
             {paymentMethod === PaymentMethod.CASH && (
               <div className="pt-2 mt-2 border-t border-gray-200 space-y-2">
                 <div className="flex justify-between items-center text-[10px] font-bold">
                   <span className="text-gray-400 uppercase">Montant reçu</span>
                   <input 
                     type="number" 
+                    step="any"
                     value={amountReceived || ''} 
-                    onChange={(e) => setAmountReceived(Number(e.target.value))}
+                    onChange={(e) => setAmountReceived(Number(e.target.value) || 0)}
+                    onFocus={(e) => e.target.select()}
                     className="w-24 px-3 py-1 text-right border border-gray-200 rounded-lg outline-none font-black text-emerald-600 focus:ring-1 focus:ring-emerald-500"
                     placeholder="0.00"
                   />
@@ -272,7 +289,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
           <button
             onClick={handleCompleteRequest}
             disabled={cart.length === 0}
-            className="w-full bg-vendix text-white font-black py-4 rounded-2xl shadow-xl shadow-vendix transition-all active:scale-95 uppercase tracking-widest text-xs"
+            className="w-full bg-vendix text-white font-black py-4 rounded-2xl shadow-xl shadow-vendix transition-all active:scale-95 uppercase tracking-widest text-xs disabled:opacity-50"
           >
             <i className="fas fa-check-circle mr-2"></i> Valider la vente
           </button>
@@ -290,7 +307,11 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
             <p className="text-gray-500 text-sm mb-6 font-bold uppercase tracking-widest">Scannez pour payer {total.toLocaleString()} {activeCurrency}</p>
             
             <div className="w-full aspect-square bg-gray-50 rounded-3xl border-4 border-gray-100 flex items-center justify-center mb-8 overflow-hidden shadow-inner p-4">
-              <img src={currentQr} alt="QR Code Paiement" className="w-full h-full object-contain rounded-xl" />
+              {currentQr ? (
+                <img src={currentQr} alt="QR Code Paiement" className="w-full h-full object-contain rounded-xl" />
+              ) : (
+                <div className="text-gray-300 font-bold uppercase text-[10px]">QR Code non configuré</div>
+              )}
             </div>
 
             <div className="flex gap-3 w-full">
@@ -301,10 +322,10 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
                 Annuler
               </button>
               <button 
-                onClick={finalizeSale}
-                className="flex-grow py-4 bg-vendix text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-vendix hover:brightness-110 transition-all"
+                onClick={() => finalizeSale()}
+                className="flex-grow py-4 bg-vendix text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-vendix hover:brightness-110 transition-all active:scale-95"
               >
-                Confirmer Paiement
+                Confirmer
               </button>
             </div>
           </div>
