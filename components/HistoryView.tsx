@@ -42,14 +42,14 @@ const HistoryView: React.FC<HistoryViewProps> = ({ sales, settings }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-          <p className="text-[10px] uppercase font-bold text-gray-400 mb-1">Nombre de ventes</p>
+          <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 text-vendix">Nombre de ventes</p>
           <p className="text-3xl font-black text-gray-800">{stats.count}</p>
         </div>
-        <div className="bg-blue-600 p-6 rounded-2xl border border-blue-500 shadow-xl shadow-blue-500/20 text-white">
+        <div className="bg-vendix p-6 rounded-2xl text-white shadow-vendix">
           <p className="text-[10px] uppercase font-bold text-white/60 mb-1">Total HTG (G)</p>
           <p className="text-3xl font-black">{stats.totalHTG.toLocaleString()} G</p>
         </div>
-        <div className="bg-emerald-600 p-6 rounded-2xl border border-emerald-500 shadow-xl shadow-emerald-500/20 text-white">
+        <div className="bg-emerald-600 p-6 rounded-2xl text-white shadow-lg shadow-emerald-500/20">
           <p className="text-[10px] uppercase font-bold text-white/60 mb-1">Total USD ($)</p>
           <p className="text-3xl font-black">$ {stats.totalUSD.toLocaleString()}</p>
         </div>
@@ -62,14 +62,14 @@ const HistoryView: React.FC<HistoryViewProps> = ({ sales, settings }) => {
             <input
               type="text"
               placeholder="N° Reçu..."
-              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg outline-none text-sm focus-vendix"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
           <input 
             type="date" 
-            className="p-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            className="p-2 bg-gray-50 border border-gray-200 rounded-lg outline-none text-sm focus-vendix"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
           />
@@ -94,7 +94,7 @@ const HistoryView: React.FC<HistoryViewProps> = ({ sales, settings }) => {
                     <div className="text-xs text-gray-400">{new Date(s.date).toLocaleString('fr-FR')}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-[10px] font-bold">{s.paymentMethod}</span>
+                    <span className="bg-vendix-soft text-vendix px-2 py-1 rounded text-[10px] font-black">{s.paymentMethod}</span>
                   </td>
                   <td className="px-6 py-4 text-gray-500">
                     {s.items.length} article(s)
@@ -105,7 +105,7 @@ const HistoryView: React.FC<HistoryViewProps> = ({ sales, settings }) => {
                     {s.currency === Currency.HTG ? ' G' : ''}
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <button onClick={() => setSelectedSale(s)} className="text-blue-500 hover:underline font-bold text-xs">
+                    <button onClick={() => setSelectedSale(s)} className="text-vendix hover:underline font-black text-xs">
                       <i className="fas fa-receipt mr-1"></i> Reçu
                     </button>
                   </td>

@@ -5,9 +5,10 @@ import { User } from '../types';
 interface LoginViewProps {
   onLogin: (user: User) => void;
   existingUser: User | null;
+  themeColor: string;
 }
 
-const LoginView: React.FC<LoginViewProps> = ({ onLogin, existingUser }) => {
+const LoginView: React.FC<LoginViewProps> = ({ onLogin, existingUser, themeColor }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -21,7 +22,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, existingUser }) => {
       return;
     }
 
-    const passwordHash = btoa(password); // Basic hash for local storage
+    const passwordHash = btoa(password);
 
     if (isSignup) {
       onLogin({ username, passwordHash });
@@ -36,13 +37,16 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, existingUser }) => {
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 animate-in zoom-in duration-300">
         <div className="text-center mb-8">
-          <div className="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center text-white text-3xl mx-auto mb-4 shadow-lg shadow-blue-500/30">
+          <div 
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-3xl mx-auto mb-4"
+            style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}4d` }}
+          >
             <i className="fas fa-cash-register"></i>
           </div>
           <h1 className="text-3xl font-black text-gray-800 tracking-tighter">Vendix POS</h1>
-          <p className="text-blue-600 font-bold mt-1 text-sm italic">
+          <p className="font-bold mt-1 text-sm italic" style={{ color: themeColor }}>
             Vendez plus vite, vendez plus fort
           </p>
           <p className="text-gray-400 mt-4 text-xs uppercase tracking-widest font-bold">
@@ -61,7 +65,8 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, existingUser }) => {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none font-bold"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none font-bold"
+                style={{ '--tw-ring-color': themeColor } as any}
                 placeholder="admin"
               />
             </div>
@@ -77,7 +82,8 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, existingUser }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+                style={{ '--tw-ring-color': themeColor } as any}
                 placeholder="••••••••"
               />
             </div>
@@ -91,7 +97,8 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, existingUser }) => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-xl shadow-blue-500/30 transition-all transform active:scale-95 uppercase tracking-widest text-xs"
+            className="w-full text-white font-black py-4 rounded-xl transition-all transform active:scale-95 uppercase tracking-widest text-xs"
+            style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}4d` }}
           >
             {isSignup ? "Créer mon compte" : "Se connecter"}
           </button>

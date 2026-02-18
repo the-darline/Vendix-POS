@@ -106,13 +106,13 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 pb-32 lg:pb-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-black text-gray-800">Gestion de Stock</h1>
           <p className="text-gray-500">{products.length} produits enregistrés</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button onClick={handleExport} className="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-gray-50 transition-all font-bold text-sm shadow-sm">
             <i className="fas fa-file-export"></i> Exporter
           </button>
@@ -120,7 +120,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
             <i className="fas fa-file-import"></i> Importer
             <input type="file" onChange={handleImport} className="hidden" accept=".json" />
           </label>
-          <button onClick={openAddModal} className="bg-blue-600 text-white px-6 py-2 rounded-xl flex items-center gap-2 hover:bg-blue-700 transition-all font-bold text-sm shadow-lg shadow-blue-500/20">
+          <button onClick={openAddModal} className="bg-vendix text-white px-6 py-2 rounded-xl flex items-center gap-2 hover:brightness-110 transition-all font-bold text-sm shadow-lg shadow-vendix">
             <i className="fas fa-plus"></i> Nouveau Produit
           </button>
         </div>
@@ -132,8 +132,8 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
             <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input
               type="text"
-              placeholder="Rechercher..."
-              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+              placeholder="Rechercher par nom ou code-barre..."
+              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus-vendix outline-none text-sm"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -163,7 +163,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
                     </div>
                   </td>
                   <td className="px-6 py-4 font-mono text-gray-500">{p.barcode || '---'}</td>
-                  <td className="px-6 py-4 text-right font-bold text-blue-600">
+                  <td className="px-6 py-4 text-right font-bold text-vendix">
                     {convertPrice(p.price, activeCurrency).toLocaleString()} {activeCurrency === Currency.HTG ? 'G' : '$'}
                   </td>
                   <td className="px-6 py-4 text-center">
@@ -172,7 +172,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right space-x-2">
-                    <button onClick={() => openEditModal(p)} className="p-2 text-gray-400 hover:text-blue-500 transition-colors">
+                    <button onClick={() => openEditModal(p)} className="p-2 text-gray-400 hover:text-vendix transition-colors">
                       <i className="fas fa-edit"></i>
                     </button>
                     <button onClick={() => handleDeleteRequest(p.id)} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
@@ -183,7 +183,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
               ))}
               {filteredProducts.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-center py-12 text-gray-400">Aucun produit</td>
+                  <td colSpan={5} className="text-center py-12 text-gray-400 font-bold">Aucun produit ne correspond à votre recherche</td>
                 </tr>
               )}
             </tbody>
@@ -226,7 +226,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
               <h3 className="text-xl font-bold text-gray-800">{editingProduct.id?.startsWith('P-') ? 'Nouveau Produit' : 'Modifier Produit'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600"><i className="fas fa-times"></i></button>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 p-2"><i className="fas fa-times text-xl"></i></button>
             </div>
             
             <form onSubmit={handleSave} className="p-6 space-y-6">
@@ -237,7 +237,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
                     <input
                       required
                       type="text"
-                      className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus-vendix"
                       value={editingProduct.name}
                       onChange={e => setEditingProduct({ ...editingProduct, name: e.target.value })}
                     />
@@ -247,11 +247,11 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
                     <div className="relative">
                       <input
                         type="text"
-                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus-vendix font-mono"
                         value={editingProduct.barcode}
                         onChange={e => setEditingProduct({ ...editingProduct, barcode: e.target.value })}
                       />
-                      <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-500"><i className="fas fa-barcode"></i></button>
+                      <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-vendix"><i className="fas fa-barcode"></i></button>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -261,7 +261,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
                         required
                         type="number"
                         step="0.01"
-                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-bold"
+                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus-vendix font-bold"
                         value={editingProduct.price}
                         onChange={e => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
                       />
@@ -271,7 +271,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
                       <input
                         required
                         type="number"
-                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-bold"
+                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus-vendix font-bold"
                         value={editingProduct.stock}
                         onChange={e => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })}
                       />
@@ -279,7 +279,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 p-6 relative group overflow-hidden">
+                <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 p-6 relative group overflow-hidden h-64 md:h-auto">
                   {editingProduct.image ? (
                     <>
                       <img src={editingProduct.image} className="w-full h-full object-contain" />
@@ -290,7 +290,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
                   ) : (
                     <>
                       <i className="fas fa-cloud-upload-alt text-4xl text-gray-300 mb-2"></i>
-                      <p className="text-xs text-gray-400 font-medium">Glissez ou cliquez pour ajouter une image</p>
+                      <p className="text-xs text-gray-400 font-bold uppercase tracking-wider text-center">Glissez ou cliquez pour ajouter une image</p>
                     </>
                   )}
                   <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={handleImageUpload} />
@@ -301,7 +301,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ products, updateProducts,
                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-grow py-3 border border-gray-200 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition-all">
                   Annuler
                 </button>
-                <button type="submit" className="flex-grow py-3 bg-blue-600 text-white rounded-xl font-bold shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all">
+                <button type="submit" className="flex-grow py-3 bg-vendix text-white rounded-xl font-bold shadow-xl shadow-vendix hover:brightness-110 transition-all uppercase tracking-widest text-xs">
                   Enregistrer
                 </button>
               </div>

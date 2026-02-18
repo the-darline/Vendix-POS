@@ -46,6 +46,7 @@ export interface BusinessSettings {
   defaultCurrency: Currency;
   conversionRate: number; // 1 USD = X HTG
   thankYouMessage: string;
+  primaryColor: string; // Hex color for theme customization
 }
 
 export interface User {

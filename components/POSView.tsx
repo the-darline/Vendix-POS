@@ -104,7 +104,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
             <input
               type="text"
               placeholder="Rechercher produit..."
-              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all text-sm lg:text-base"
+              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus-vendix outline-none shadow-sm transition-all text-sm lg:text-base"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -136,7 +136,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
                 )}
               </div>
               <h3 className="font-bold text-gray-800 truncate text-[11px] lg:text-sm mb-1">{product.name}</h3>
-              <p className="text-blue-600 font-black text-sm lg:text-base mt-auto">
+              <p className="text-vendix font-black text-sm lg:text-base mt-auto">
                 {convertPrice(product.price, activeCurrency).toLocaleString()} {activeCurrency === Currency.HTG ? 'G' : '$'}
               </p>
               <div className={`text-[8px] lg:text-[10px] uppercase font-black mt-1 px-2 py-0.5 rounded self-start ${product.stock < 5 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
@@ -156,7 +156,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
       {/* Floating Cart Button - Visible on lg and below */}
       <button 
         onClick={() => setIsCartOpen(true)}
-        className="lg:hidden fixed bottom-20 right-6 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center z-40 transition-transform active:scale-90 no-print"
+        className="lg:hidden fixed bottom-20 right-6 w-16 h-16 bg-vendix text-white rounded-full shadow-2xl flex items-center justify-center z-40 transition-transform active:scale-90 no-print shadow-vendix"
       >
         <div className="relative">
           <i className="fas fa-shopping-basket text-xl"></i>
@@ -182,7 +182,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
       `}>
         <div className="p-4 lg:p-6 border-b border-gray-100 flex items-center justify-between bg-white flex-shrink-0">
           <h2 className="text-lg font-black text-gray-800 flex items-center gap-2 uppercase tracking-tighter">
-            <i className="fas fa-shopping-basket text-blue-500"></i> Panier
+            <i className="fas fa-shopping-basket text-vendix"></i> Panier
           </h2>
           <button onClick={() => setIsCartOpen(false)} className="lg:hidden p-2 text-gray-400 hover:text-gray-600">
             <i className="fas fa-times text-xl"></i>
@@ -197,7 +197,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
               </div>
               <div className="flex-grow min-w-0">
                 <h4 className="font-bold text-gray-800 truncate text-[11px] leading-tight mb-1">{item.name}</h4>
-                <p className="text-[10px] text-blue-600 font-black uppercase tracking-tighter">
+                <p className="text-[10px] text-vendix font-black uppercase tracking-tighter">
                   {(convertPrice(item.price, activeCurrency) * item.quantity).toLocaleString()} {activeCurrency === Currency.HTG ? 'G' : '$'}
                 </p>
               </div>
@@ -232,15 +232,15 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
                 type="number" 
                 value={discount || ''} 
                 onChange={(e) => setDiscount(Number(e.target.value))}
-                className="w-24 px-3 py-1 text-right border border-gray-200 rounded-lg outline-none font-black text-blue-600 bg-white shadow-sm"
+                className="w-24 px-3 py-1 text-right border border-gray-200 rounded-lg outline-none font-black text-vendix bg-white shadow-sm"
                 placeholder="0.00"
               />
             </div>
             <div className="flex justify-between items-end pt-3 border-t border-gray-200">
               <span className="text-[11px] font-black text-gray-800 uppercase tracking-tighter mb-1">TOTAL À PAYER</span>
               <div className="text-right">
-                <p className="text-3xl lg:text-4xl font-black text-blue-600 leading-none">{total.toLocaleString()}</p>
-                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mt-1">
+                <p className="text-3xl lg:text-4xl font-black text-vendix leading-none">{total.toLocaleString()}</p>
+                <p className="text-[10px] font-black text-vendix uppercase tracking-widest mt-1">
                   {activeCurrency === Currency.HTG ? 'Gourdes' : 'Dollars'}
                 </p>
               </div>
@@ -266,7 +266,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
                 type="number"
                 value={amountReceived || ''}
                 onChange={(e) => setAmountReceived(Number(e.target.value))}
-                className="w-full p-2.5 border border-gray-200 rounded-xl text-lg font-black outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full p-2.5 border border-gray-200 rounded-xl text-lg font-black outline-none focus:ring-2 focus-vendix bg-white"
                 placeholder="0.00"
               />
               {amountReceived > 0 && (
@@ -281,7 +281,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
           <button
             onClick={handleComplete}
             disabled={cart.length === 0}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-500/30 transition-all flex items-center justify-center gap-3 active:scale-95 text-xs lg:text-sm uppercase tracking-widest"
+            className="w-full bg-vendix hover:brightness-110 disabled:bg-gray-200 text-white font-black py-4 rounded-2xl shadow-xl shadow-vendix transition-all flex items-center justify-center gap-3 active:scale-95 text-xs lg:text-sm uppercase tracking-widest"
           >
             <i className="fas fa-check-circle text-lg"></i> Valider la vente
           </button>

@@ -10,7 +10,6 @@ interface ReceiptModalProps {
 
 const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, settings, onClose }) => {
   const handlePrint = () => {
-    // Création d'une nouvelle fenêtre pour isoler l'impression
     const printWindow = window.open('', '_blank', 'width=400,height=600');
     if (!printWindow) {
       alert("Veuillez autoriser les popups pour l'impression");
@@ -198,7 +197,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, settings, onClose }) 
     <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] flex items-center justify-center p-0 md:p-4 no-print overflow-y-auto">
       <div className="bg-white md:rounded-3xl shadow-2xl w-full max-w-lg min-h-screen md:min-h-0 overflow-hidden animate-in zoom-in duration-300 flex flex-col">
         <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
-          <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">Vente Terminée</span>
+          <span className="text-[10px] font-black text-vendix bg-vendix-soft px-3 py-1 rounded-full uppercase tracking-widest">Vente Terminée</span>
           <button onClick={onClose} className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors active:scale-90">
             <i className="fas fa-times text-lg"></i>
           </button>
@@ -295,7 +294,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ sale, settings, onClose }) 
           <button onClick={handlePDF} className="bg-slate-900 text-white py-3 rounded-2xl font-black text-xs hover:bg-black flex items-center justify-center gap-2 active:scale-95">
             <i className="fas fa-file-pdf"></i> PDF
           </button>
-          <button onClick={onClose} className="col-span-2 md:col-span-1 py-3 bg-blue-600 text-white rounded-2xl font-black text-xs shadow-lg shadow-blue-500/20 hover:bg-blue-700 active:scale-95">
+          <button onClick={onClose} className="col-span-2 md:col-span-1 py-3 bg-vendix text-white rounded-2xl font-black text-xs shadow-vendix transition-all active-vendix">
             NOUVELLE VENTE
           </button>
         </div>
