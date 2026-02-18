@@ -43,6 +43,11 @@ const DEFAULT_SETTINGS: BusinessSettings = {
   primaryColor: '#2563eb'
 };
 
+// Type pour le résultat de la vérification de licence (Union discriminée)
+type LicenseResult = 
+  | { valid: true; joursReste: number; expiry: string }
+  | { valid: false; message: string };
+
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -54,8 +59,8 @@ const App: React.FC = () => {
   const [sales, setSales] = useState<Sale[]>([]);
   const [activeCurrency, setActiveCurrency] = useState<Currency>(Currency.HTG);
 
-  // Vérification de la licence
-  const verifyLicense = (key: string) => {
+  // Vérification de la licence avec typage explicite
+  const verifyLicense = (key: string): LicenseResult => {
     const keyUpper = key.toUpperCase().trim();
     if (!VALID_KEYS.includes(keyUpper)) {
       return { valid: false, message: "Clé de licence invalide !" };
@@ -93,12 +98,14 @@ const App: React.FC = () => {
       return;
     }
     const result = verifyLicense(savedKey);
-    if (!result.valid) {
+    // Use explicit equality check to help TypeScript narrow the discriminated union
+    if (result.valid === false) {
       localStorage.removeItem(STORAGE_KEYS.LICENSE);
       setIsLicenseValid(false);
       setLicenseError(result.message);
       return;
     }
+    // Ici result.valid est true, donc joursReste est garanti par le type LicenseResult
     if (result.joursReste <= 7) {
       alert(`⚠️ Votre licence expire dans ${result.joursReste} jour(s) ! Renouvelez vite.`);
     }
@@ -107,18 +114,19 @@ const App: React.FC = () => {
 
   const handleActivateLicense = (key: string) => {
     const result = verifyLicense(key);
-    if (result.valid) {
+    // Use explicit equality check to help TypeScript narrow the discriminated union
+    if (result.valid === true) {
       localStorage.setItem(STORAGE_KEYS.LICENSE, key.toUpperCase().trim());
       setIsLicenseValid(true);
       setLicenseError('');
       alert(`✅ Licence activée avec succès !\nExpire le : ${result.expiry}`);
     } else {
+      // result is now correctly narrowed to { valid: false; message: string }
       setLicenseError(result.message);
     }
   };
 
   useEffect(() => {
-    // Vérification initiale (checkLicense en premier)
     checkLicense();
 
     const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
@@ -138,7 +146,6 @@ const App: React.FC = () => {
     if (storedSales) setSales(JSON.parse(storedSales));
   }, []);
 
-  // Injection dynamique du style pour la couleur primaire
   useEffect(() => {
     const styleId = 'dynamic-vendix-theme';
     let styleElement = document.getElementById(styleId);
@@ -179,19 +186,16 @@ const App: React.FC = () => {
     localStorage.removeItem(STORAGE_KEYS.SESSION);
   };
 
-  // Fix: Added updateProducts function to sync with localStorage
   const updateProducts = (newProducts: Product[]) => {
     setProducts(newProducts);
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(newProducts));
   };
 
-  // Fix: Added addSale function to store sales and update product stock
   const addSale = (sale: Sale) => {
     const updatedSales = [sale, ...sales];
     setSales(updatedSales);
     localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(updatedSales));
 
-    // Mettre à jour les stocks suite à la vente
     const updatedProducts = products.map(p => {
       const cartItem = sale.items.find(item => item.id === p.id);
       if (cartItem) {
@@ -202,13 +206,11 @@ const App: React.FC = () => {
     updateProducts(updatedProducts);
   };
 
-  // Ading missing handleUpdateSettings to persist business settings
   const handleUpdateSettings = (newSettings: BusinessSettings) => {
     setSettings(newSettings);
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(newSettings));
   };
 
-  // Logique d'affichage séquentielle
   if (!isLicenseValid) {
     return <LicenseView onActivate={handleActivateLicense} error={licenseError} />;
   }
@@ -221,7 +223,6 @@ const App: React.FC = () => {
     <div id="mainApp">
       <HashRouter>
         <div className="h-screen flex flex-col lg:flex-row overflow-hidden bg-gray-50">
-          {/* Sidebar - Desktop */}
           <nav className="hidden lg:flex bg-slate-900 text-white w-64 flex-shrink-0 flex-col shadow-xl z-20 no-print">
             <div className="p-6">
               <h1 className="text-xl font-black text-vendix flex items-center gap-2">
@@ -252,7 +253,6 @@ const App: React.FC = () => {
             </div>
           </nav>
 
-          {/* Main Area */}
           <div className="flex-grow flex flex-col h-full overflow-hidden">
             <header className="bg-white border-b border-gray-200 h-14 lg:h-16 flex-shrink-0 flex items-center justify-between px-4 lg:px-6 z-10 no-print">
               <div className="flex items-center gap-3">
