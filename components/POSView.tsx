@@ -21,7 +21,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
 
-  // Synchronisation automatique pour éviter les erreurs de "montant insuffisant" sur MonCash/NatCash
+  // Synchronisation automatique pour MonCash/NatCash/Virement
   useEffect(() => {
     if (paymentMethod !== PaymentMethod.CASH) {
       setAmountReceived(total);
@@ -101,7 +101,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
     onCompleteSale(sale);
     setLastSale(sale);
     
-    // Réinitialisation complète de l'état
+    // Réinitialisation complète
     setCart([]);
     setDiscount(0);
     setAmountReceived(0);
@@ -113,16 +113,19 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
   const handleCompleteRequest = () => {
     if (cart.length === 0) return;
     
-    // Validation stricte du montant pour le CASH
+    // Fermer le clavier sur mobile pour éviter les bugs de positionnement
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
     if (paymentMethod === PaymentMethod.CASH) {
-      // Utilisation d'une petite marge d'erreur (0.01) pour éviter les bugs d'arrondi sur mobile
+      // Tolérance de 0.01 pour les arrondis
       if (amountReceived < (total - 0.01)) {
-        alert(`Montant reçu insuffisant !\nReçu: ${amountReceived} ${activeCurrency}\nTotal: ${total} ${activeCurrency}`);
+        alert(`Montant insuffisant !\nReçu: ${amountReceived}\nTotal: ${total}`);
         return;
       }
     }
 
-    // Si QR Code nécessaire
     const hasMonCashQr = paymentMethod === PaymentMethod.MONCASH && settings.moncashQr;
     const hasNatCashQr = paymentMethod === PaymentMethod.NATCASH && settings.natcashQr;
 
@@ -151,8 +154,9 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
             />
           </div>
           <button 
-            onClick={() => setIsScanning(!isScanning)}
-            className={`w-12 lg:w-auto lg:px-6 rounded-2xl flex items-center justify-center gap-2 transition-all ${isScanning ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-sm'}`}
+            type="button"
+            onPointerDown={() => setIsScanning(!isScanning)}
+            className={`w-12 lg:w-auto lg:px-6 rounded-2xl flex items-center justify-center gap-2 transition-all ${isScanning ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-sm active:scale-95'}`}
           >
             <i className={`fas ${isScanning ? 'fa-times' : 'fa-barcode'}`}></i>
             <span className="hidden lg:inline font-bold">{isScanning ? 'Arrêter' : 'Scanner'}</span>
@@ -163,7 +167,8 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
           {filteredProducts.map(product => (
             <button
               key={product.id}
-              onClick={() => addToCart(product)}
+              type="button"
+              onPointerDown={() => addToCart(product)}
               disabled={product.stock <= 0}
               className={`group bg-white p-2 lg:p-3 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all text-left flex flex-col relative ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}
             >
@@ -188,9 +193,10 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
         </div>
       </div>
 
-      {/* Floating Cart Button */}
+      {/* Floating Cart Button (Mobile) */}
       <button 
-        onClick={() => setIsCartOpen(true)}
+        type="button"
+        onPointerDown={() => setIsCartOpen(true)}
         className="lg:hidden fixed bottom-20 right-6 w-16 h-16 bg-vendix text-white rounded-full shadow-2xl flex items-center justify-center z-40 transition-transform active:scale-90 no-print shadow-vendix"
       >
         <div className="relative">
@@ -213,7 +219,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
           <h2 className="text-lg font-black text-gray-800 flex items-center gap-2 uppercase tracking-tighter">
             <i className="fas fa-shopping-basket text-vendix"></i> Panier
           </h2>
-          <button onClick={() => setIsCartOpen(false)} className="lg:hidden p-2 text-gray-400"><i className="fas fa-times text-xl"></i></button>
+          <button type="button" onPointerDown={() => setIsCartOpen(false)} className="lg:hidden p-2 text-gray-400"><i className="fas fa-times text-xl"></i></button>
         </div>
 
         <div className="flex-grow overflow-y-auto p-4 lg:p-6 space-y-3">
@@ -229,9 +235,9 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
                 </p>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={() => updateQuantity(item.id, -1)} className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center"><i className="fas fa-minus text-[8px]"></i></button>
+                <button type="button" onPointerDown={() => updateQuantity(item.id, -1)} className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center active:scale-90"><i className="fas fa-minus text-[8px]"></i></button>
                 <span className="font-black text-xs w-5 text-center">{item.quantity}</span>
-                <button onClick={() => updateQuantity(item.id, 1)} className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center"><i className="fas fa-plus text-[8px]"></i></button>
+                <button type="button" onPointerDown={() => updateQuantity(item.id, 1)} className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center active:scale-90"><i className="fas fa-plus text-[8px]"></i></button>
               </div>
             </div>
           ))}
@@ -243,11 +249,11 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
               <span>Sous-total</span>
               <span>{subtotal.toLocaleString()} {activeCurrency}</span>
             </div>
+            
             <div className="flex justify-between items-center text-[10px] font-bold">
               <span className="text-gray-400 uppercase">Remise</span>
               <input 
                 type="number" 
-                step="any"
                 inputMode="decimal"
                 value={discount || ''} 
                 onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
@@ -256,19 +262,27 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
             </div>
             
             {paymentMethod === PaymentMethod.CASH && (
-              <div className="pt-2 mt-2 border-t border-gray-200 space-y-2 animate-in slide-in-from-top-2 duration-300">
-                <div className="flex justify-between items-center text-[10px] font-bold">
-                  <span className="text-gray-400 uppercase">Montant reçu</span>
-                  <input 
-                    type="number" 
-                    step="any"
-                    inputMode="decimal"
-                    value={amountReceived || ''} 
-                    onChange={(e) => setAmountReceived(parseFloat(e.target.value) || 0)}
-                    onFocus={(e) => e.target.select()}
-                    className="w-24 px-3 py-1 text-right border border-gray-200 rounded-lg outline-none font-black text-emerald-600 focus:ring-1 focus:ring-emerald-500"
-                    placeholder="0.00"
-                  />
+              <div className="pt-2 mt-2 border-t border-gray-200 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase">Montant reçu</span>
+                  <div className="flex gap-2 items-center">
+                    <button 
+                      type="button"
+                      onPointerDown={() => setAmountReceived(total)}
+                      className="px-2 py-1 bg-white border border-gray-200 rounded text-[8px] font-black text-vendix uppercase active:bg-gray-100"
+                    >
+                      Exact
+                    </button>
+                    <input 
+                      type="number" 
+                      inputMode="decimal"
+                      value={amountReceived || ''} 
+                      onChange={(e) => setAmountReceived(parseFloat(e.target.value) || 0)}
+                      onFocus={(e) => e.target.select()}
+                      className="w-24 px-3 py-1 text-right border border-gray-200 rounded-lg outline-none font-black text-emerald-600 focus:ring-1 focus:ring-emerald-500"
+                      placeholder="0.00"
+                    />
+                  </div>
                 </div>
                 <div className="flex justify-between items-center text-[11px] font-black">
                   <span className="text-gray-400 uppercase">Monnaie à rendre</span>
@@ -292,7 +306,8 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
             {Object.values(PaymentMethod).map(method => (
               <button
                 key={method}
-                onClick={() => setPaymentMethod(method)}
+                type="button"
+                onPointerDown={() => setPaymentMethod(method)}
                 className={`py-2 rounded-xl text-[9px] font-black transition-all border uppercase tracking-tighter h-8 ${paymentMethod === method ? 'bg-slate-900 border-slate-900 text-white shadow-lg' : 'bg-white border-gray-200 text-gray-400 active:scale-95'}`}
               >
                 {method}
@@ -301,9 +316,10 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
           </div>
 
           <button
-            onClick={handleCompleteRequest}
+            type="button"
+            onPointerDown={handleCompleteRequest}
             disabled={cart.length === 0}
-            className="w-full bg-vendix text-white font-black py-4 rounded-2xl shadow-xl shadow-vendix transition-all active:scale-[0.98] uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-vendix text-white font-black py-4 rounded-2xl shadow-xl shadow-vendix transition-all active:scale-95 uppercase tracking-widest text-xs disabled:opacity-50"
           >
             <i className="fas fa-check-circle mr-2"></i> Valider la vente
           </button>
@@ -333,16 +349,15 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
 
             <div className="flex gap-3 w-full">
               <button 
-                onClick={() => setShowQrModal(false)}
+                type="button"
+                onPointerDown={() => setShowQrModal(false)}
                 className="flex-grow py-4 border border-gray-200 rounded-2xl font-black text-gray-400 uppercase tracking-widest text-[10px] hover:bg-gray-50 transition-all active:scale-95"
               >
                 Annuler
               </button>
               <button 
-                onClick={() => {
-                  // Confirmation manuelle pour mobile
-                  finalizeSale();
-                }}
+                type="button"
+                onPointerDown={() => finalizeSale()}
                 className="flex-grow py-4 bg-vendix text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-vendix hover:brightness-110 transition-all active:scale-95"
               >
                 Confirmer
