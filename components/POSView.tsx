@@ -20,13 +20,41 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
   const [lastSale, setLastSale] = useState<Sale | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
+
+  // Helper moved up as it is needed for useMemo computations
+  const convertPrice = (price: number, toCurrency: Currency) => {
+    if (settings.defaultCurrency === toCurrency) return price;
+    if (settings.defaultCurrency === Currency.USD && toCurrency === Currency.HTG) return price * settings.conversionRate;
+    return price / settings.conversionRate;
+  };
+
+  // Computed values moved up to be available for the useEffect
+  const subtotal = useMemo(() => {
+    const totalInBase = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const converted = convertPrice(totalInBase, activeCurrency);
+    return Math.round(converted * 100) / 100;
+  }, [cart, activeCurrency, settings]);
+
+  const total = useMemo(() => {
+    const val = Math.max(0, subtotal - discount);
+    return Math.round(val * 100) / 100;
+  }, [subtotal, discount]);
+
+  const change = useMemo(() => {
+    if (paymentMethod !== PaymentMethod.CASH) return 0;
+    const diff = amountReceived - total;
+    return diff > 0 ? Math.round(diff * 100) / 100 : 0;
+  }, [amountReceived, total, paymentMethod]);
 
   // Synchronisation automatique pour MonCash/NatCash/Virement
+  // Moved after total declaration to fix the block-scoped variable error
   useEffect(() => {
     if (paymentMethod !== PaymentMethod.CASH) {
       setAmountReceived(total);
     }
-  }, [paymentMethod, cart, discount]);
+    setPaymentError(''); // Reset erreur quand paiement change
+  }, [paymentMethod, cart, discount, total]);
 
   const filteredProducts = useMemo(() => {
     return products.filter(p => 
@@ -34,12 +62,6 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
       p.barcode.includes(search)
     );
   }, [products, search]);
-
-  const convertPrice = (price: number, toCurrency: Currency) => {
-    if (settings.defaultCurrency === toCurrency) return price;
-    if (settings.defaultCurrency === Currency.USD && toCurrency === Currency.HTG) return price * settings.conversionRate;
-    return price / settings.conversionRate;
-  };
 
   const addToCart = (product: Product) => {
     if (product.stock <= 0) return;
@@ -63,23 +85,6 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
       return item;
     }).filter(item => item.quantity > 0));
   };
-
-  const subtotal = useMemo(() => {
-    const totalInBase = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const converted = convertPrice(totalInBase, activeCurrency);
-    return Math.round(converted * 100) / 100;
-  }, [cart, activeCurrency, settings]);
-
-  const total = useMemo(() => {
-    const val = Math.max(0, subtotal - discount);
-    return Math.round(val * 100) / 100;
-  }, [subtotal, discount]);
-
-  const change = useMemo(() => {
-    if (paymentMethod !== PaymentMethod.CASH) return 0;
-    const diff = amountReceived - total;
-    return diff > 0 ? Math.round(diff * 100) / 100 : 0;
-  }, [amountReceived, total, paymentMethod]);
 
   const finalizeSale = () => {
     const finalAmountReceived = paymentMethod === PaymentMethod.CASH ? amountReceived : total;
@@ -108,20 +113,26 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
     setSearch('');
     setIsCartOpen(false);
     setShowQrModal(false);
+    setPaymentError('');
   };
 
   const handleCompleteRequest = () => {
     if (cart.length === 0) return;
-    
+    setPaymentError('');
+
     // Fermer le clavier sur mobile pour éviter les bugs de positionnement
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
 
     if (paymentMethod === PaymentMethod.CASH) {
+      // Auto-set si montant non saisi
+      const received = amountReceived > 0 ? amountReceived : total;
+      if (amountReceived === 0) setAmountReceived(total);
+
       // Tolérance de 0.01 pour les arrondis
-      if (amountReceived < (total - 0.01)) {
-        alert(`Montant insuffisant !\nReçu: ${amountReceived}\nTotal: ${total}`);
+      if (received < (total - 0.01)) {
+        setPaymentError(`Montant insuffisant ! Reçu: ${received} — Total: ${total}`);
         return;
       }
     }
@@ -197,7 +208,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
       <button 
         type="button"
         onPointerDown={() => setIsCartOpen(true)}
-        className="lg:hidden fixed bottom-20 right-6 w-16 h-16 bg-vendix text-white rounded-full shadow-2xl flex items-center justify-center z-40 transition-transform active:scale-90 no-print shadow-vendix"
+        className="lg:hidden fixed bottom-20 right-6 w-16 h-16 bg-vendix text-white rounded-full shadow-2xl flex items-center justify-center z-40 transition-transform active:scale-90 no-print shadow-vendix touch-manipulation"
       >
         <div className="relative">
           <i className="fas fa-shopping-basket text-xl"></i>
@@ -269,7 +280,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
                     <button 
                       type="button"
                       onPointerDown={() => setAmountReceived(total)}
-                      className="px-2 py-1 bg-white border border-gray-200 rounded text-[8px] font-black text-vendix uppercase active:bg-gray-100"
+                      className="px-2 py-1 bg-white border border-gray-200 rounded text-[8px] font-black text-vendix uppercase active:bg-gray-100 touch-manipulation"
                     >
                       Exact
                     </button>
@@ -315,11 +326,21 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
             ))}
           </div>
 
+          {paymentError && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-[10px] font-bold px-3 py-2 rounded-xl text-center uppercase">
+              <i className="fas fa-exclamation-triangle mr-1"></i>
+              {paymentError}
+            </div>
+          )}
+
           <button
             type="button"
-            onPointerDown={handleCompleteRequest}
+            onPointerDown={() => {
+              setPaymentError('');
+              handleCompleteRequest();
+            }}
             disabled={cart.length === 0}
-            className="w-full bg-vendix text-white font-black py-4 rounded-2xl shadow-xl shadow-vendix transition-all active:scale-95 uppercase tracking-widest text-xs disabled:opacity-50"
+            className="w-full bg-vendix text-white font-black py-4 rounded-2xl shadow-xl shadow-vendix transition-all active:scale-95 uppercase tracking-widest text-xs disabled:opacity-50 touch-manipulation"
           >
             <i className="fas fa-check-circle mr-2"></i> Valider la vente
           </button>
@@ -358,7 +379,7 @@ const POSView: React.FC<POSViewProps> = ({ products, settings, activeCurrency, o
               <button 
                 type="button"
                 onPointerDown={() => finalizeSale()}
-                className="flex-grow py-4 bg-vendix text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-vendix hover:brightness-110 transition-all active:scale-95"
+                className="flex-grow py-4 bg-vendix text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-vendix hover:brightness-110 transition-all active:scale-95 touch-manipulation"
               >
                 Confirmer
               </button>
